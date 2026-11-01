@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { basename, resolve } from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
@@ -14,7 +15,7 @@ test('repository is standalone and has no parent-suite dependency', () => {
     read('../tools/ctf.mjs'),
   ].join('\n');
   assert.doesNotMatch(files, /modern-ctf-2026|collection root|scripts\/ctf\.mjs/u);
-  assert.ok(root.endsWith('ctf-proxy-panic') || root.endsWith('ctf-proxy-panic\\'));
+  assert.equal(basename(resolve(root)), 'ctf-proxy-panic');
 });
 
 test('compose keeps the vulnerable worker behind a hardened internal boundary', () => {

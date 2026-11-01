@@ -1,0 +1,65 @@
+services:
+  worker:
+    build: .
+    command: ["node", "src/worker.mjs"]
+    environment:
+      HOST: 0.0.0.0
+      PORT: 4000
+      FLAG: ${FLAG:?generated automatically by tools/ctf.mjs}
+      WORKER_TOKEN: ${WORKER_TOKEN:?generated automatically by tools/ctf.mjs}
+    networks: [backplane]
+    read_only: true
+    tmpfs:
+      - "/tmp:size=8m,noexec,nosuid,nodev,mode=0700,uid=1000,gid=1000"
+    user: node
+    init: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    pids_limit: 64
+    mem_limit: 128m
+    cpus: 0.50
+    ulimits:
+      nofile: {soft: 512, hard: 512}
+      fsize: 1048576
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4000/healthz').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 3s
+      timeout: 2s
+      retries: 20
+
+  gateway:
+    build: .
+    command: ["node", "src/gateway.mjs"]
+    depends_on:
+      worker: {condition: service_healthy}
+    environment:
+      HOST: 0.0.0.0
+      PORT: 3000
+      WORKER_HOST: worker
+      WORKER_PORT: 4000
+      WORKER_TOKEN: ${WORKER_TOKEN:?generated automatically by tools/ctf.mjs}
+    ports: ["127.0.0.1:${PROXY_PANIC_PORT:-18083}:3000"]
+    networks: [front, backplane]
+    read_only: true
+    tmpfs:
+      - "/tmp:size=4m,noexec,nosuid,nodev"
+    user: node
+    init: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    pids_limit: 48
+    mem_limit: 96m
+    cpus: 0.35
+    ulimits:
+      nofile: {soft: 512, hard: 512}
+      fsize: 1048576
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/healthz').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 3s
+      timeout: 2s
+      retries: 20
+
+networks:
+  front: {}
+  backplane: {internal: true}
+

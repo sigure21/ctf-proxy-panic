@@ -1,0 +1,28 @@
+{
+  "name": "ctf-proxy-panic",
+  "version": "1.0.0",
+  "description": "A self-contained, container-isolated web CTF about raw/canonical path confusion and cold-start command injection.",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "ctf": "node tools/ctf.mjs",
+    "up": "node tools/ctf.mjs up",
+    "verify": "node tools/ctf.mjs verify",
+    "status": "node tools/ctf.mjs status",
+    "flags": "node tools/ctf.mjs flags",
+    "logs": "node tools/ctf.mjs logs",
+    "down": "node tools/ctf.mjs down",
+    "reset": "node tools/ctf.mjs reset",
+    "doctor": "node tools/ctf.mjs doctor",
+    "check": "node tools/check.mjs",
+    "test": "node tools/check.mjs",
+    "solve": "node solver/solve.mjs",
+    "start": "node src/gateway.mjs",
+    "start:worker": "node src/worker.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
+
